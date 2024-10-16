@@ -1,4 +1,8 @@
 .venv/
-.env
-
+.vscode/
 **/__pycache__/
+.python_packages
+
+# env variables
+local.settings.json
+.env
