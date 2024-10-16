@@ -63,7 +63,7 @@ def get_poster_url(posters_page_soup: bs4.BeautifulSoup) -> str:
     poster_element = posters_page_soup.select_one(poster_element_id)
     return poster_element['src'] if poster_element else None
 
-def get_movie_info() -> tuple[bool, str, str, str, str]: # (success, title, summary, movie_url, poster_url)
+def scrape_movie_details() -> tuple[bool, str, str, str, str]: # (success, title, summary, movie_url, poster_url)
     random_id = get_random_id()
     summary_url = get_movie_summary_url(random_id)
     posters_url = get_movie_posters_url(random_id)
@@ -179,18 +179,18 @@ def upload_image_data(session, img_bytes):
     blob = resp.json()["blob"]
     return blob
 
-def get_movie_info() -> tuple[bool, str, str, str, str]: # (success, title, summary, movie_url, poster_url)
+def try_get_movie_details() -> tuple[bool, str, str, str, str]: # (success, title, summary, movie_url, poster_url)
     MAX_TRY_COUNT = int(os.getenv('MAX_TRY_COUNT'))
     try_count = 0
     while try_count < MAX_TRY_COUNT:
+        try_count += 1
         try:
-            success, title, summary, summary_url, poster_url = get_movie_info()
+            success, title, summary, summary_url, poster_url = scrape_movie_details()
             if success:
                 # title and summary must be trimmed to avoid leading/trailing whitespaces
                 # poster_url must be prefixed with "https:" to form a valid URL
-                return True, title.trim(), summary.trim(), summary_url, fix_poster_url(poster_url)
+                return True, title.strip(), summary.strip(), summary_url, fix_poster_url(poster_url)
         except Exception as e:
-            try_count += 1
             print(e)
     return False, None, None, None, None
 
@@ -200,7 +200,7 @@ def post_movie_to_bluesky(title, summary, movie_url, img_bytes):
     post_with_image(session, title, summary, movie_url, blob)
 
 def main():
-    success, title, summary, movie_url, poster_url = get_movie_info()
+    success, title, summary, movie_url, poster_url = try_get_movie_details()
     if not success:
         return
     
