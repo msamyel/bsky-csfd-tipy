@@ -24,6 +24,18 @@ class TestGetRandomId(unittest.TestCase):
                 result = main.get_random_id()
                 self.assertEqual(result, expected)
 
+
+class TestFixPosterUrl(unittest.TestCase):
+    def test_fix_poster_url(self):
+        test_cases = [
+            ('//example.com/image.jpg', 'https://example.com/image.jpg'),
+            ('https://example.com/image.jpg', 'https://example.com/image.jpg'),
+            ('http://example.com/image.jpg', 'http://example.com/image.jpg'),]
         
+        for url, expected in test_cases:
+            with self.subTest(url=url, expected=expected):
+                result = main.fix_poster_url(url)
+                self.assertEqual(result, expected)
+
 if __name__ == '__main__':
     unittest.main()
