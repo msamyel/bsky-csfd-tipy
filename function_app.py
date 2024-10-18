@@ -106,13 +106,13 @@ def post_with_image(session, title, summary, movie_url, blob):
     title_bytes_len = len(title_bytes)
 
     MAX_POST_LENGTH = 300
-    # subtract title length and 3 for " - " separator
-    remaining_characters = MAX_POST_LENGTH - len(title) - 3
+    # subtract title length and 2 for ": " separator
+    remaining_characters = MAX_POST_LENGTH - len(title) - 2
     # If the post is too long, truncate it
     if len(summary) > remaining_characters:
         summary = summary[:remaining_characters - 3] + "..."
 
-    content = f"{title} - {summary}"
+    content = f"{title}: {summary}"
 
     # Required fields that each post must include
     post = {"$type": "app.bsky.feed.post",
@@ -206,7 +206,7 @@ def main():
 
 app = func.FunctionApp()
 
-@app.schedule(schedule="0 0 16 * * *", arg_name="myTimer", run_on_startup=False,
+@app.schedule(schedule="0 0 13 * * *", arg_name="myTimer", run_on_startup=False,
               use_monitor=False) 
 def timer_trigger(myTimer: func.TimerRequest) -> None:
     main()
