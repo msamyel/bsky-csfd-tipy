@@ -1,0 +1,17 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "",
+    "FUNCTIONS_WORKER_RUNTIME": "python",
+    "MOVIE_ID_RANGES": "0-1000,2000-3000",
+    "MAX_TRY_COUNT": 3,
+    "SUMMARY_PAGE_URL_PATTERN": "https://movies.tld/movie/{movie_id}",
+    "POSTERS_PAGE_URL_PATTERN": "https://movies.tld/movie/{movie_id}/posters/",
+    "TITLE_ELEMENT_ID": "h1",
+    "SUMMARY_ELEMENT_ID": ".summary",
+    "POSTER_ELEMENT_ID": ".poster",
+    "BLUESKY_HANDLE": "",
+    "BLUESKY_APP_PASSWORD": "",
+    "HEADERS_USER_AGENT": ""
+  }
+}

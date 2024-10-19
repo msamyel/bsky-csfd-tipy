@@ -7,3 +7,4 @@ local.settings.json
 test
 .venv
 **/__pycache__/
+local.settings.json.sample
