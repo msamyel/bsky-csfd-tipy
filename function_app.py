@@ -5,6 +5,8 @@ import json
 import requests
 import bs4
 from datetime import datetime, timezone
+from time import sleep
+from dotenv import load_dotenv
 
 def get_random_id() -> int:
     ranges = os.getenv('MOVIE_ID_RANGES').split(',')
@@ -64,20 +66,25 @@ def get_poster_url(posters_page_soup: bs4.BeautifulSoup) -> str:
 
 def scrape_movie_details() -> tuple[bool, str, str, str, str]: # (success, title, summary, movie_url, poster_url)
     random_id = get_random_id()
+    print("\n\n\n")
+    print("Scraping movie details for movie ID:", random_id)
     summary_url = get_movie_summary_url(random_id)
     posters_url = get_movie_posters_url(random_id)
     summary_page_soup = get_page_soup(summary_url)
     title = get_movie_title(summary_page_soup)
+
     if not title:
+        print("Failed to get movie title")
         return False, None, None, None, None
     
     summary = get_summary_text(summary_page_soup)
     if not summary:
-        return False, title, None, summary_url, None
+        print("Failed to get movie summary")
 
     posters_page_soup = get_page_soup(posters_url)
     poster_url = get_poster_url(posters_page_soup)
     if not poster_url:
+        print("Failed to get movie poster URL")
         return False, title, summary, summary_url, None
 
     return True, title, summary, summary_url, poster_url
@@ -179,6 +186,7 @@ def upload_image_data(session, img_bytes):
 def try_get_movie_details() -> tuple[bool, str, str, str, str]: # (success, title, summary, movie_url, poster_url)
     MAX_TRY_COUNT = int(os.getenv('MAX_TRY_COUNT'))
     try_count = 0
+    candidates = [] # list of (title, summary, movie_url, poster_url), choose from candidates if no perfect match
     while try_count < MAX_TRY_COUNT:
         try_count += 1
         try:
@@ -187,8 +195,14 @@ def try_get_movie_details() -> tuple[bool, str, str, str, str]: # (success, titl
                 # title and summary must be trimmed to avoid leading/trailing whitespaces
                 # poster_url must be prefixed with "https:" to form a valid URL
                 return True, title.strip(), summary.strip(), summary_url, fix_poster_url(poster_url)
+            if not success and title and poster_url:
+                candidates.append((title.strip(), "", summary_url, fix_poster_url(poster_url)))
         except Exception as e:
             print(e)
+        sleep(try_count)
+    
+    if candidates:
+        return True, *random.choice(candidates)
     return False, None, None, None, None
 
 def post_movie_to_bluesky(title, summary, movie_url, img_bytes):
