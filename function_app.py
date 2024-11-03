@@ -52,12 +52,16 @@ def download_image(url: str) -> bytes:
 def get_movie_title(summary_page_soup: bs4.BeautifulSoup) -> str:
     title_element_id = os.getenv('TITLE_ELEMENT_ID')
     title_element = summary_page_soup.select_one(title_element_id)
-    return title_element.text if title_element else None
+    if title_element:
+        return ' '.join(title_element.text.split())
+    return None
 
 def get_summary_text(summary_page_soup: bs4.BeautifulSoup) -> str:
     summary_element_id = os.getenv('SUMMARY_ELEMENT_ID')
     description_element = summary_page_soup.select_one(summary_element_id)
-    return description_element.text if description_element else None
+    if description_element:
+        return description_element.text.strip()
+    return None
 
 def get_poster_url(posters_page_soup: bs4.BeautifulSoup) -> str:
     poster_element_id = os.getenv('POSTER_ELEMENT_ID')
@@ -194,9 +198,9 @@ def try_get_movie_details() -> tuple[bool, str, str, str, str]: # (success, titl
             if success:
                 # title and summary must be trimmed to avoid leading/trailing whitespaces
                 # poster_url must be prefixed with "https:" to form a valid URL
-                return True, title.strip(), summary.strip(), summary_url, fix_poster_url(poster_url)
+                return True, title, summary, summary_url, fix_poster_url(poster_url)
             if not success and title and poster_url:
-                candidates.append((title.strip(), "", summary_url, fix_poster_url(poster_url)))
+                candidates.append((title, summary_url, fix_poster_url(poster_url)))
         except Exception as e:
             print(e)
         sleep(try_count)
